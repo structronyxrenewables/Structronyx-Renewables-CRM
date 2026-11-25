@@ -1,0 +1,66 @@
+name: Build Structronyx CRM release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: Structronyx_CRM_Native_Build_Kit/structronyx-quotation-crm
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Structronyx_CRM_Native_Build_Kit/structronyx-quotation-crm/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npx electron-builder --win nsis
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Structronyx-CRM-Windows-Installer
+          path: Structronyx_CRM_Native_Build_Kit/structronyx-quotation-crm/release/*.exe
+          if-no-files-found: error
+          retention-days: 14
+
+  android:
+    name: Android debug APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Structronyx_CRM_Native_Build_Kit/structronyx-quotation-crm
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Structronyx_CRM_Native_Build_Kit/structronyx-quotation-crm/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap add android
+      - run: npx cap sync android
+      - run: cd android && ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Structronyx-CRM-Android-APK
+          path: Structronyx_CRM_Native_Build_Kit/structronyx-quotation-crm/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
