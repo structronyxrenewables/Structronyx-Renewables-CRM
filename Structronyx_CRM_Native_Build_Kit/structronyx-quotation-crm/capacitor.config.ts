@@ -1,0 +1,1 @@
+import type { CapacitorConfig } from '@capacitor/cli'; const config: CapacitorConfig = { appId:'com.structronyx.renewables.crm', appName:'Structronyx CRM', webDir:'dist', bundledWebRuntime:false }; export default config;
