@@ -14,7 +14,8 @@
     "desktop:pack": "npm run build && electron-builder --dir",
     "desktop:win": "npm run build && electron-builder --win nsis",
     "desktop:linux": "npm run build && electron-builder --linux AppImage",
-    "android:debug": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug"
+    "android:debug": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
+    "release": "gh workflow run release.yml --repo structronyxrenewables/Structronyx-Renewables-CRM"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
